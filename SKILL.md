@@ -33,7 +33,7 @@ If the client cannot complete OAuth, a workspace owner or admin creates a key un
 
 1. **Nothing publishes without approval.** `schedule_post` always creates a group in `pending_approval` and returns an approval link. Show the user the full text, the destination accounts, the media, and the time, and call `approve_post` only after they say yes to that exact post. If you cannot see the user's answer, leave the post pending and give them the approval link.
 2. **Use real account IDs.** Call `list_accounts` first and use the `id` values it returns. Skip accounts where `needs_reconnect` is true. Confirm the accounts belong to the workspace the user meant.
-3. **Check X before posting there.** Call `get_x_allowance` first. A plain X post costs 1 credit and an X post containing a link costs 13. The free plan has 10 credits a month and paid plans 50 per connected X account; each X account can post 10 times an hour and 25 times a day. Do not add a link to an X post unless the user asked for one.
+3. **Check X before posting there.** Call `get_x_allowance` first. A plain X post costs 1 credit and an X post containing a link costs 13. The free plan has 10 credits a month and paid plans 50 for each of the first 10 connected X accounts and 20 for each after; each X account can post 10 times an hour and 25 times a day. Do not add a link to an X post unless the user asked for one.
 4. **Do not retry blindly.** `schedule_post` is not idempotent, so check `list_posts` before resending an uncertain request. Approval is not proof of publication: confirm with `list_posts` and read each destination's status and error.
 5. **Media must be public HTTPS links.** Images: JPEG, PNG, GIF, or WebP up to 8 MB. Videos: MP4, MOV, or WebM up to 1 GB. Local files, authenticated links, and private network URLs do not work. Facebook Pages take text, images, or one video; LinkedIn profiles up to 9 images or one video; X up to 4 images or one video. Never mix a video with images in one post, and when posting to several accounts use media every selected platform accepts.
 6. **Mind the budget.** The free plan includes 500 tool calls a month and paid plans 1,000 per account of capacity; requests are limited to 60 a minute per workspace. Reuse results instead of polling.
@@ -119,4 +119,4 @@ No arguments. Remaining monthly X credits for the owner and each X account's rem
 
 ## Pricing
 
-The first connected account is free. After that it's $4, $2, and $1 per account a month as the user adds more. MCP access, approvals, analytics, and unlimited teammates come with every account, including the free one. Details: https://unipost.ai/#pricing.
+The first two connected accounts are free. After that it's $3, $1, and $0.50 per account a month as the user adds more. MCP access, approvals, analytics, and unlimited teammates come with every account, including the free one. Details: https://unipost.ai/#pricing.
