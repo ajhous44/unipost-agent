@@ -1,6 +1,6 @@
 ---
 name: unipost
-description: Schedule social media posts to LinkedIn profiles, X, Facebook Pages (beta), and YouTube (beta) through UniPost's hosted MCP server. TikTok posts may stay private until app review is complete. Every post an agent schedules waits for a human to approve it.
+description: Schedule social media posts to LinkedIn profiles, X, YouTube, and Facebook Pages (beta) through UniPost's hosted MCP server. TikTok posts may stay private until app review is complete. Every post an agent schedules waits for a human to approve it.
 homepage: https://unipost.ai/agents
 ---
 
@@ -43,7 +43,7 @@ If the client cannot complete OAuth, a workspace owner or admin creates a key un
 
 ### `list_accounts`
 
-No arguments. Returns each publishable account's `id`, `platform`, `username`, `name`, `profile`, and `needs_reconnect`. Supported today: LinkedIn profiles and X. In beta: Facebook Pages (only Meta-approved users can connect until Meta's review passes) and YouTube (uploads private for now). TikTok posts may stay private until app review is complete. Instagram is coming soon.
+No arguments. Returns each publishable account's `id`, `platform`, `username`, `name`, `profile`, and `needs_reconnect`. Supported today: LinkedIn profiles, X, and YouTube. In beta: Facebook Pages (only Meta-approved users can connect until Meta's review passes). TikTok posts may stay private until app review is complete. Instagram is coming soon.
 
 ### `list_posts`
 
