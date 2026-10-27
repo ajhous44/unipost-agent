@@ -35,7 +35,7 @@ If the client cannot complete OAuth, a workspace owner or admin creates a key un
 2. **Use real account IDs.** Call `list_accounts` first and use the `id` values it returns. Skip accounts where `needs_reconnect` is true. Confirm the accounts belong to the workspace the user meant.
 3. **Check X before posting there.** Call `get_x_allowance` first. A plain X post costs 1 credit and an X post containing a link costs 13. The free plan has 10 credits a month and paid plans 50 for each of the first 10 connected X accounts and 20 for each after; each X account can post 10 times an hour and 25 times a day. Do not add a link to an X post unless the user asked for one.
 4. **Do not retry blindly.** `schedule_post` is not idempotent, so check `list_posts` before resending an uncertain request. Approval is not proof of publication: confirm with `list_posts` and read each destination's status and error.
-5. **Media must be public HTTPS links.** Images: JPEG, PNG, GIF, or WebP up to 8 MB. Videos: MP4, MOV, or WebM up to 1 GB. Local files, authenticated links, and private network URLs do not work. Facebook Pages take text, images, or one video; LinkedIn profiles up to 9 images or one video; X up to 4 images or one video. Never mix a video with images in one post, and when posting to several accounts use media every selected platform accepts.
+5. **Media must be public HTTPS links.** Images: JPEG, PNG, GIF, or WebP up to 8 MB. Videos: MP4, MOV, or WebM up to 1 GB. Local files, authenticated links, and private network URLs do not work. LinkedIn profiles up to 9 images or one video; X up to 4 images or one video. Never mix a video with images in one post, and when posting to several accounts use media every selected platform accepts.
 6. **Mind the budget.** The free plan includes 500 tool calls a month and paid plans 1,000 per account of capacity; requests are limited to 60 a minute per workspace. Reuse results instead of polling.
 7. **Billing stays with the human.** There is no MCP billing tool and no payment endpoint. Buying accounts happens in the owner's signed-in browser; read https://unipost.ai/agent-checkout.md before helping with a purchase.
 
@@ -113,7 +113,7 @@ No arguments. Remaining monthly X credits for the owner and each X account's rem
 
 - "List the social accounts in this workspace."
 - "Prepare a post for tomorrow at 9 a.m. in my timezone. Show me the full text and destination accounts before you publish it."
-- "Schedule this video to the Facebook Page and my LinkedIn profile on Tuesday at 9 a.m. Eastern, then send me the approval link."
+- "Schedule this video to my LinkedIn profile and YouTube on Tuesday at 9 a.m. Eastern."
 - "What's left of my X allowance this month?"
 - "Which posts did best in the last 30 days?"
 
