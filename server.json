@@ -1,0 +1,19 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.ajhous44/unipost-agent",
+  "title": "UniPost",
+  "description": "Hosted MCP server for AI agents to post to LinkedIn profiles and X and upload to YouTube.",
+  "websiteUrl": "https://unipost.ai",
+  "repository": {
+    "url": "https://github.com/ajhous44/unipost-agent",
+    "source": "github",
+    "id": "1423529661"
+  },
+  "version": "1.0.0",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.unipost.ai/mcp"
+    }
+  ]
+}

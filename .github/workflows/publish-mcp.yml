@@ -1,0 +1,39 @@
+name: Publish to MCP Registry
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      # Pinned release: https://github.com/modelcontextprotocol/registry/releases/tag/v1.8.5
+      # Checksums: https://github.com/modelcontextprotocol/registry/releases/download/v1.8.5/registry_1.8.5_checksums.txt
+      MCP_PUBLISHER_VERSION: v1.8.5
+      MCP_PUBLISHER_ARCHIVE: mcp-publisher_linux_amd64.tar.gz
+      MCP_PUBLISHER_SHA256: 2d151ac57275c9a6684d9d22b1cba81058bab195ea0a162e8fce3c6a5ec32812
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Download and verify mcp-publisher
+        run: |
+          set -euo pipefail
+          base_url="https://github.com/modelcontextprotocol/registry/releases/download/${MCP_PUBLISHER_VERSION}"
+          curl --fail --location --silent --show-error \
+            --output "${MCP_PUBLISHER_ARCHIVE}" \
+            "${base_url}/${MCP_PUBLISHER_ARCHIVE}"
+          echo "${MCP_PUBLISHER_SHA256}  ${MCP_PUBLISHER_ARCHIVE}" | sha256sum -c -
+          tar xzf "${MCP_PUBLISHER_ARCHIVE}" mcp-publisher
+          rm -f "${MCP_PUBLISHER_ARCHIVE}"
+          ./mcp-publisher --help >/dev/null
+
+      - name: Authenticate to MCP Registry
+        run: ./mcp-publisher login github-oidc
+
+      - name: Publish server to MCP Registry
+        run: ./mcp-publisher publish
