@@ -1,12 +1,12 @@
 ---
 name: unipost
-description: Schedule social media posts to LinkedIn profiles, X, YouTube, and Facebook Pages (beta) through UniPost's hosted MCP server. TikTok posts may stay private until app review is complete. Every post an agent schedules waits for a human to approve it.
+description: Schedule social media posts to LinkedIn profiles, X and YouTube through UniPost's hosted MCP server. Posts publish on schedule by default, or wait for approval when that is turned on.
 homepage: https://unipost.ai/agents
 ---
 
 # UniPost
 
-UniPost is an agent-first social media scheduler. You connect to its hosted MCP server, list the user's accounts, draft and schedule posts, and the user approves each post before it publishes. There is no CLI to install and no local daemon: everything is MCP over HTTPS.
+UniPost is an agent-first social media scheduler. You connect to its hosted MCP server, list the user's accounts, draft and schedule posts. By default posts publish on schedule; when approval is on (or the post includes TikTok), they wait for approval. There is no CLI to install and no local daemon: everything is MCP over HTTPS.
 
 - Server: `https://mcp.unipost.ai/mcp` (remote HTTP MCP, OAuth with PKCE, or an API key)
 - Docs: https://unipost.ai/docs/mcp and https://unipost.ai/docs/agents/tools
@@ -31,11 +31,11 @@ If the client cannot complete OAuth, a workspace owner or admin creates a key un
 
 ## Rules
 
-1. **Nothing publishes without approval.** `schedule_post` always creates a group in `pending_approval` and returns an approval link. Show the user the full text, the destination accounts, the media, and the time, and call `approve_post` only after they say yes to that exact post. If you cannot see the user's answer, leave the post pending and give them the approval link.
+1. **Show the post before you schedule it.** `schedule_post` creates a group as `scheduled` by default. When the workspace owner's approval setting is on, and for any post that includes TikTok, it creates `pending_approval` with an approval link. Show the user the full text, the destination accounts, the media, and the time before you schedule. When a post is pending, call `approve_post` only after they say yes to that exact post (or give them the approval link if you cannot see their answer).
 2. **Use real account IDs.** Call `list_accounts` first and use the `id` values it returns. Skip accounts where `needs_reconnect` is true. Confirm the accounts belong to the workspace the user meant.
 3. **Check X before posting there.** Call `get_x_allowance` first. A plain X post costs 1 credit and an X post containing a link costs 13. The free plan has 10 credits a month and paid plans 50 for each of the first 10 connected X accounts and 20 for each after; each X account can post 10 times an hour and 25 times a day. Do not add a link to an X post unless the user asked for one.
 4. **Do not retry blindly.** `schedule_post` is not idempotent, so check `list_posts` before resending an uncertain request. Approval is not proof of publication: confirm with `list_posts` and read each destination's status and error.
-5. **Media must be public HTTPS links.** Images: JPEG, PNG, GIF, or WebP up to 8 MB. Videos: MP4, MOV, or WebM up to 1 GB. Local files, authenticated links, and private network URLs do not work. Facebook Pages take text, images, or one video; LinkedIn profiles up to 9 images or one video; X up to 4 images or one video. Never mix a video with images in one post, and when posting to several accounts use media every selected platform accepts.
+5. **Media must be public HTTPS links.** Images: JPEG, PNG, GIF, or WebP up to 8 MB. Videos: MP4, MOV, or WebM up to 1 GB. Local files, authenticated links, and private network URLs do not work. LinkedIn profiles up to 9 images or one video; X up to 4 images or one video. Never mix a video with images in one post, and when posting to several accounts use media every selected platform accepts.
 6. **Mind the budget.** The free plan includes 500 tool calls a month and paid plans 1,000 per account of capacity; requests are limited to 60 a minute per workspace. Reuse results instead of polling.
 7. **Billing stays with the human.** There is no MCP billing tool and no payment endpoint. Buying accounts happens in the owner's signed-in browser; read https://unipost.ai/agent-checkout.md before helping with a purchase.
 
@@ -43,7 +43,7 @@ If the client cannot complete OAuth, a workspace owner or admin creates a key un
 
 ### `list_accounts`
 
-No arguments. Returns each publishable account's `id`, `platform`, `username`, `name`, `profile`, and `needs_reconnect`. Supported today: LinkedIn profiles, X, and YouTube. In beta: Facebook Pages (only Meta-approved users can connect until Meta's review passes). TikTok posts may stay private until app review is complete. Instagram is coming soon.
+No arguments. Returns each publishable account's `id`, `platform`, `username`, `name`, `profile`, and `needs_reconnect`. LinkedIn profiles, X, and YouTube are live. TikTok posts may stay private until app review is complete. Instagram is coming soon. LinkedIn company pages are coming soon.
 
 ### `list_posts`
 
@@ -63,7 +63,7 @@ Returns posts soonest first with post ID, group ID, content, status, scheduled a
 | `scheduled_for` | ISO 8601 date-time | yes | Include the timezone, e.g. `2026-10-06T09:00:00-05:00`; now or later, within one year |
 | `media_urls` | array of URL strings | no | Up to 10 public HTTPS image or video links |
 
-Creates one group across all destinations in `pending_approval` and returns an approval link. Example arguments:
+Creates one group across all destinations as `scheduled` by default (or `pending_approval` with an approval link when the account owner has approval turned on, or the post includes TikTok). Example arguments:
 
 ```json
 {
@@ -105,7 +105,7 @@ No arguments. Remaining monthly X credits for the owner and each X account's rem
 
 1. `list_accounts`. Tell the user which accounts you found and which need reconnecting.
 2. Draft the post. Show the text, destinations, media links, and time in the user's timezone.
-3. `schedule_post`. Return the approval link.
+3. `schedule_post`. Return the approval link only when the post is `pending_approval`.
 4. When the user says yes to that post, `approve_post`. Otherwise `cancel_post` or leave it pending.
 5. `list_posts` with `status: "posted"` to confirm, and `get_analytics` later for results.
 
@@ -113,7 +113,7 @@ No arguments. Remaining monthly X credits for the owner and each X account's rem
 
 - "List the social accounts in this workspace."
 - "Prepare a post for tomorrow at 9 a.m. in my timezone. Show me the full text and destination accounts before you publish it."
-- "Schedule this video to the Facebook Page and my LinkedIn profile on Tuesday at 9 a.m. Eastern, then send me the approval link."
+- "Schedule this video to my LinkedIn profile and YouTube on Tuesday at 9 a.m. Eastern."
 - "What's left of my X allowance this month?"
 - "Which posts did best in the last 30 days?"
 
