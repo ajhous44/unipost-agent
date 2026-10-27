@@ -12,7 +12,7 @@ Then connect your agent to `https://mcp.unipost.ai/mcp`. Per-agent setup pages: 
 
 ## What's inside
 
-- [SKILL.md](SKILL.md): how to connect, the rules (X credits, media, budgets), every MCP tool with its parameters, and example prompts.
+- [SKILL.md](SKILL.md): the posting rules your agent follows, every MCP tool with its parameters, and example prompts.
 
 ## Links
 
