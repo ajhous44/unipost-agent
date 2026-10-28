@@ -1,8 +1,17 @@
 # unipost-agent
 
-The UniPost skill for AI agents. UniPost is a hosted MCP server that lets Claude, Cursor, Grok Bot or any MCP client schedule and publish posts to LinkedIn profiles and X, and upload videos to YouTube. Sign in with OAuth or an API key. This skill teaches any agent that reads Markdown skills (Claude Code, Codex, Cursor, OpenClaw, Hermes, and the rest of the `skills` ecosystem) how to use it.
+The UniPost skill for AI agents. UniPost is a hosted MCP server that lets Claude, Cursor, Grok Bot or any MCP client schedule and publish posts to LinkedIn profiles, X, TikTok, and YouTube. Sign in with OAuth or an API key. This skill teaches any agent that reads Markdown skills (Claude Code, Codex, Cursor, OpenClaw, Hermes, and the rest of the `skills` ecosystem) how to use it.
 
 ## Install
+
+For OpenClaw:
+
+```bash
+npx skills add ajhous44/unipost-agent -g -a openclaw -y
+# or: openclaw skills install git:ajhous44/unipost-agent
+```
+
+For other agents (Claude Code, Codex, Cursor, Hermes, and the `skills` CLI):
 
 ```bash
 npx skills add ajhous44/unipost-agent

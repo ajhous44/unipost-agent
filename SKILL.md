@@ -1,6 +1,6 @@
 ---
 name: unipost
-description: Schedule social media posts to LinkedIn profiles, X and YouTube through UniPost's hosted MCP server. Posts publish on schedule by default, or wait for approval when that is turned on.
+description: Schedule social media posts to LinkedIn profiles, X, TikTok, and YouTube through UniPost's hosted MCP server. Posts publish on schedule by default, or wait for approval when that is turned on.
 homepage: https://unipost.ai/agents
 ---
 
@@ -35,7 +35,7 @@ If the client cannot complete OAuth, a workspace owner or admin creates a key un
 2. **Use real account IDs.** Call `list_accounts` first and use the `id` values it returns. Skip accounts where `needs_reconnect` is true. Confirm the accounts belong to the workspace the user meant.
 3. **Check X before posting there.** Call `get_x_allowance` first. A plain X post costs 1 credit and an X post containing a link costs 13. The free plan has 10 credits a month and paid plans 50 for each of the first 10 connected X accounts and 20 for each after; each X account can post 10 times an hour and 25 times a day. Do not add a link to an X post unless the user asked for one.
 4. **Do not retry blindly.** `schedule_post` is not idempotent, so check `list_posts` before resending an uncertain request. Approval is not proof of publication: confirm with `list_posts` and read each destination's status and error.
-5. **Media must be public HTTPS links.** Images: JPEG, PNG, GIF, or WebP up to 8 MB. Videos: MP4, MOV, or WebM up to 1 GB. Local files, authenticated links, and private network URLs do not work. LinkedIn profiles up to 9 images or one video; X up to 4 images or one video. Never mix a video with images in one post, and when posting to several accounts use media every selected platform accepts.
+5. **Media must be public HTTPS links.** Images: JPEG, PNG, GIF, or WebP up to 8 MB. Videos: MP4, MOV, or WebM up to 1 GB. Local files, authenticated links, and private network URLs do not work. LinkedIn profiles take up to 9 images or one video; X up to 4 images or one video; TikTok and YouTube take exactly one video. Never mix a video with images in one post, and when posting to several accounts use media every selected platform accepts.
 6. **Mind the budget.** The free plan includes 500 tool calls a month and paid plans 1,000 per account of capacity; requests are limited to 60 a minute per workspace. Reuse results instead of polling.
 7. **Billing stays with the human.** There is no MCP billing tool and no payment endpoint. Buying accounts happens in the owner's signed-in browser; read https://unipost.ai/agent-checkout.md before helping with a purchase.
 
@@ -43,16 +43,16 @@ If the client cannot complete OAuth, a workspace owner or admin creates a key un
 
 ### `list_accounts`
 
-No arguments. Returns each publishable account's `id`, `platform`, `username`, `name`, `profile`, and `needs_reconnect`. LinkedIn profiles, X, and YouTube are live. TikTok posts may stay private until app review is complete. Instagram is coming soon. LinkedIn company pages are coming soon.
+No arguments. Returns each publishable account's `id`, `platform`, `username`, `name`, `profile`, and `needs_reconnect`. Supported today: LinkedIn profiles, X, TikTok, and YouTube. Instagram is coming soon.
 
 ### `list_posts`
 
 | Parameter | Type | Default | Values |
 | --- | --- | --- | --- |
-| `status` | string, optional | all | `pending_approval`, `scheduled`, `publishing`, `posted`, `failed` |
+| `status` | string, optional | all | `pending_approval`, `scheduled`, `publishing`, `posted`, `sent_to_inbox`, `failed` |
 | `limit` | integer, optional | 20 | 1–50 |
 
-Returns posts soonest first with post ID, group ID, content, status, scheduled and published times, destination, post URL, metrics when the platform reports them, an error message when one failed, and `approval_url` for pending posts. There is no pagination cursor.
+Returns posts soonest first with post ID, group ID, content, status, scheduled and published times, destination, post URL, metrics when the platform reports them, an error message when one failed, and `approval_url` for pending posts. `sent_to_inbox` is a TikTok inbox draft the creator finishes in the TikTok app. There is no pagination cursor.
 
 ### `schedule_post`
 
@@ -62,6 +62,7 @@ Returns posts soonest first with post ID, group ID, content, status, scheduled a
 | `content` | string | yes | 1–3,000 characters; a destination platform may allow less |
 | `scheduled_for` | ISO 8601 date-time | yes | Include the timezone, e.g. `2026-10-06T09:00:00-05:00`; now or later, within one year |
 | `media_urls` | array of URL strings | no | Up to 10 public HTTPS image or video links |
+| `tiktok_inbox_draft` | boolean, optional | no | Send TikTok videos to the creator's TikTok inbox as a draft (library sound in the TikTok app) instead of publishing directly |
 
 Creates one group across all destinations as `scheduled` by default (or `pending_approval` with an approval link when the account owner has approval turned on, or the post includes TikTok). Example arguments:
 
@@ -87,7 +88,7 @@ Approves the whole group the post belongs to. It publishes at its scheduled time
 | --- | --- | --- |
 | `post_id` | UUID string | yes |
 
-Deletes the unpublished posts in the group (`pending_approval`, `scheduled`, or `failed`). Posts that are `publishing` or `posted` cannot be canceled.
+Deletes the unpublished posts in the group (`pending_approval`, `scheduled`, or `failed`). Posts that are `publishing`, `posted`, or `sent_to_inbox` cannot be canceled.
 
 ### `get_analytics`
 
@@ -106,17 +107,17 @@ No arguments. Remaining monthly X credits for the owner and each X account's rem
 1. `list_accounts`. Tell the user which accounts you found and which need reconnecting.
 2. Draft the post. Show the text, destinations, media links, and time in the user's timezone.
 3. `schedule_post`. Return the approval link only when the post is `pending_approval`.
-4. When the user says yes to that post, `approve_post`. Otherwise `cancel_post` or leave it pending.
+4. If it is pending and the user says yes to that post, `approve_post`. Otherwise `cancel_post` or leave it pending.
 5. `list_posts` with `status: "posted"` to confirm, and `get_analytics` later for results.
 
 ## Example prompts
 
 - "List the social accounts in this workspace."
 - "Prepare a post for tomorrow at 9 a.m. in my timezone. Show me the full text and destination accounts before you publish it."
-- "Schedule this video to my LinkedIn profile and YouTube on Tuesday at 9 a.m. Eastern."
+- "Schedule this video to TikTok and my LinkedIn profile on Tuesday at 9 a.m. Eastern, then send me the approval link."
 - "What's left of my X allowance this month?"
 - "Which posts did best in the last 30 days?"
 
 ## Pricing
 
-The first two connected accounts are free. After that it's $3, $1, and $0.50 per account a month as the user adds more. MCP access, approvals, analytics, and up to 100 teammates come with every account, including the free one. Details: https://unipost.ai/#pricing.
+The first 2 connected accounts are free. After that it's $3, $1, and $0.50 per account a month as the user adds more. MCP access, approvals, analytics, and up to 100 teammates come with every account, including the free ones. Details: https://unipost.ai/pricing.
